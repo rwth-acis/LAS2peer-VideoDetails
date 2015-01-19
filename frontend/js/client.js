@@ -41,20 +41,6 @@ function TemplateServiceClient(endpointUrl) {
 	}
 };
 
-/**
-* An example function demonstrating a GET request on resource <endpointUrl>/video-details/validate
-*/
-TemplateServiceClient.prototype.getMethod = function(successCallback, errorCallback) {
-	this.sendRequest("GET",
-		"video-details/validation",
-		"",
-		"application/json",
-		{},
-		successCallback,
-		errorCallback
-	);
-};
-
 TemplateServiceClient.prototype.getVideos = function(successCallback, errorCallback) {
 	this.sendRequest("GET",
 		"video-details/videos",
@@ -70,11 +56,11 @@ TemplateServiceClient.prototype.getVideoDetails = function(query, successCallbac
 	var q="";
 	
 	if(query !== null && query !== ""){
-		q = "q="+query;
+		q = "?q="+query;
 	}
 	
 	this.sendRequest("GET",
-		"video-details/videos/?" + q,
+		"video-details/videos" + q,
 		"",
 		"application/json",
 		{},
@@ -143,7 +129,9 @@ TemplateServiceClient.prototype.sendRequest = function(method, relativePath, con
 			rurl += "&access_token=" + window.localStorage["access_token"];
 		} else {
 			rurl += "?access_token=" + window.localStorage["access_token"];
-		}
+		
+		} 
+		
 	} else {
 		console.log("Anonymous request... ");
 	}

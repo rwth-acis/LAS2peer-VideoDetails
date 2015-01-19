@@ -69,7 +69,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
           data-logo="logo.png"
           data-size="sm"
           data-server="https://api.learning-layers.eu/o/oauth2"
-          data-clientid="25389c00-c7f4-4617-acec-edf514c0daab"
+          data-clientid="e4d5e1e3-2150-42f9-a4f0-e08550f7c348"
           data-scope="openid email profile">
         </span>
         </span>
@@ -88,7 +88,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       <button onclick="getVideoDetail();" class="btn btn-default"><span class="glyphicon glyphicon-hand-right"> Get Video Details</span></button>
       <p id="getVideoDeatilsOutput"></p>
     </div>
-    <button onclick="postUpdateVideoDetails('1','localhost','userBlaBla');" class="btn btn-default"><span class="glyphicon glyphicon-hand-right"> Update Video Details</span></button>
+    <button onclick="postUpdateVideoDetails('4','localhost','userBlaBla');" class="btn btn-default"><span class="glyphicon glyphicon-hand-right"> Update Video Details</span></button>
     <p id="postUpdateVideoDetail"></p>
     <button onclick="postInsertVideo('10','url','testUser','acis','acis meeting','thumbnail','restservice');" class="btn btn-default"><span class="glyphicon glyphicon-hand-right"> Insert new video</span></button>
     <p id="postInsertVideo"></p>
@@ -153,8 +153,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     
     // create new instance of TemplateServiceClient, given its endpoint URL
     var client = new TemplateServiceClient("http://localhost:8080/");
-        
-    function getVideos() {
+        	
+	function getVideos() {
         client.getVideos(
           function(data,type) {
             // this is the success callback
@@ -171,7 +171,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	  
     //fuction defined as response to a click on Get Video Details Button
     function getVideoDetail() {
-    	var query = document.getElementById("keyword").value;
+    	var query = "";
+		if(document.getElementById("keyword").value!="")
+			query=document.getElementById("keyword").value;
         client.getVideoDetails(query,
           function(data,type) {
             // this is the success callback
@@ -189,8 +191,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     function postUpdateVideoDetails(id,url,uploader) {
 	var input= id;
 	var values={"url": url, "uploader": uploader}
-	var json = JSON.stringify(header);
-        client.postUpdateVideoDetails(input, values,
+	var json = JSON.stringify(values);
+        client.postUpdateVideoDetails(input, json,
           function(data,type) {
             // this is the success callback
             console.log(data);
