@@ -63,6 +63,8 @@ public class VideoDetailsClass extends Service {
 	private String jdbcUrl;
 	private String jdbcSchema;
 	private DatabaseManager dbm;
+	
+	private String epUrl;
 
 	public VideoDetailsClass() {
 		// read and set properties values
@@ -669,6 +671,33 @@ public class VideoDetailsClass extends Service {
 			}
 		}
 	}
+	
+	
+	// ================= Swagger Resource Listing & API Declarations =====================
+
+		@GET
+		@Path("api-docs")
+		@Summary("retrieve Swagger 1.2 resource listing.")
+		@ApiResponses(value={
+				@ApiResponse(code = 200, message = "Swagger 1.2 compliant resource listing"),
+				@ApiResponse(code = 404, message = "Swagger resource listing not available due to missing annotations."),
+		})
+		@Produces(MediaType.APPLICATION_JSON)
+		public HttpResponse getSwaggerResourceListing(){
+			return RESTMapper.getSwaggerResourceListing(this.getClass());
+		}
+
+		@GET
+		@Path("api-docs/{tlr}")
+		@Produces(MediaType.APPLICATION_JSON)
+		@Summary("retrieve Swagger 1.2 API declaration for given top-level resource.")
+		@ApiResponses(value={
+				@ApiResponse(code = 200, message = "Swagger 1.2 compliant API declaration"),
+				@ApiResponse(code = 404, message = "Swagger API declaration not available due to missing annotations."),
+		})
+		public HttpResponse getSwaggerApiDeclaration(@PathParam("tlr") String tlr){
+			return RESTMapper.getSwaggerApiDeclaration(this.getClass(),tlr, epUrl);
+		}
 
 	/**
 	 * Method for debugging purposes.
