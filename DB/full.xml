@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dataset>
+  <USERS username="sbakiu" email="sadik.bakiu@rwth-aachen.de"/>
+  <VIDEODETAILS videoId="1" url=".localhost" thumbnail="http://localhost:81/rest/video/Wildlife.png" uploader="userBlaBla" tool="restservice" community="acis" time="2014-12-10 17:14:32.0" description="This is a test video"/>
+  <VIDEODETAILS videoId="2" url="url" thumbnail="thumbnail" uploader="sbakiu" tool="restservice" community="acis" time="2014-12-04 16:30:39.0" description="acis meeting"/>
+  <VIDEODETAILS videoId="3" url="urlFor3" thumbnail="localhost" uploader="uploaderOf3" tool="ahso" community="sse" time="2014-12-12 11:35:43.0" description="This is a video of our course mates"/>
+  <VIDEODETAILS videoId="4" url="urlFromTest" thumbnail="thumbnail4" uploader="uploader_New" tool="tool" community="community" time="2014-12-17 12:22:08.0" description="description4"/>
+  <VIDEODETAILS videoId="6" url="url4" thumbnail="thumbnail6" uploader="uploader7" tool="tool" community="community" time="2014-12-11 15:09:13.0" description="description6"/>
+</dataset>
