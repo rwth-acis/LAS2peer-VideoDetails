@@ -2,6 +2,7 @@ package i5.las2peer.services.videoDetails;
 
 import i5.las2peer.api.Service;
 import i5.las2peer.restMapper.HttpResponse;
+import i5.las2peer.restMapper.MediaType;
 import i5.las2peer.restMapper.RESTMapper;
 import i5.las2peer.restMapper.annotations.ContentParam;
 import i5.las2peer.restMapper.annotations.DELETE;
@@ -9,6 +10,7 @@ import i5.las2peer.restMapper.annotations.GET;
 import i5.las2peer.restMapper.annotations.POST;
 import i5.las2peer.restMapper.annotations.Path;
 import i5.las2peer.restMapper.annotations.PathParam;
+import i5.las2peer.restMapper.annotations.Produces;
 import i5.las2peer.restMapper.annotations.QueryParam;
 import i5.las2peer.restMapper.annotations.Version;
 import i5.las2peer.restMapper.annotations.swagger.ApiInfo;
@@ -76,6 +78,7 @@ public class VideoDetailsClass extends Service {
 	 * 
 	 */
 	@GET
+	@Produces(MediaType.TEXT_HTML)
 	@Path("validation")
 	@ResourceListApi(description = "Check the user")
 	@Summary("Return a greeting for the logged in user")
@@ -85,7 +88,7 @@ public class VideoDetailsClass extends Service {
 	})
 	public HttpResponse validateLogin() {
 		String returnString = "";
-		returnString += "You are " + ((UserAgent) getActiveAgent()).getLoginName() + " and your login is valid!";
+		returnString += "You are " + ((UserAgent) getActiveAgent()).getLoginName() + " !";
 		
 		HttpResponse res = new HttpResponse(returnString);
 		res.setStatus(200);
@@ -104,7 +107,7 @@ public class VideoDetailsClass extends Service {
 	@GET
 	@Path("videos/{videoid}")
 	@ResourceListApi(description = "Return details for a selected video")
-	@Summary("return a JSON with video details stored the given VideoID")
+	@Summary("return a JSON with video details stored for the given VideoID")
 	@Notes("query parameter selects the columns that need to be returned in the JSON.")
 	@ApiResponses(value={
 			@ApiResponse(code = 200, message = "Video details"),
@@ -332,6 +335,8 @@ public class VideoDetailsClass extends Service {
 	@Notes("Requires authentication.")
 	@ApiResponses(value={
 			@ApiResponse(code = 200, message = "Video details updated successfully."),
+			@ApiResponse(code = 401, message = "User is not authenticated."),
+			@ApiResponse(code = 404, message = "Video not found."),
 			@ApiResponse(code = 500, message = "Internal error.")	
 	})
 	public HttpResponse setVideoDetail(@PathParam("videoid") String videoid, @ContentParam String data) {
@@ -357,15 +362,38 @@ public class VideoDetailsClass extends Service {
 					updateStr+= ", " + key + "  =  '" + o.get(key)  +  "' ";
 				}
 			}
-			updateStr= "UPDATE videodetails SET " + updateStr + " WHERE videoid = " + videoid +";";
-			stmnt = conn.prepareStatement(updateStr);
-			int rows = stmnt.executeUpdate(); 
-			result = "Database updated. " + rows + " row(s) affected";
 			
-			// return 
-			HttpResponse r = new HttpResponse(result);
-			r.setStatus(200);
-			return r;
+			String str = ((UserAgent) getActiveAgent()).getLoginName();
+			System.out.println(str);
+			if(getActiveAgent().getId() != getActiveNode().getAnonymous().getId()){
+				updateStr= "UPDATE videodetails SET " + updateStr + " WHERE videoid = " + videoid +";";
+				stmnt = conn.prepareStatement(updateStr);
+				int rows = stmnt.executeUpdate();
+				if(rows>0){
+					result = "Database updated. " + rows + " row(s) affected";
+					
+					// return 
+					HttpResponse r = new HttpResponse(result);
+					r.setStatus(200);
+					return r;
+				}else{
+					result = "No video found";
+					
+					// return 
+					HttpResponse r = new HttpResponse(result);
+					r.setStatus(404);
+					return r;
+					
+				}				
+			}else{
+				result = "User in not authenticated";
+				
+				// return 
+				HttpResponse r = new HttpResponse(result);
+				r.setStatus(401);
+				return r;
+				
+			}
 			
 		} catch (Exception e) {
 			// return HTTP Response on error
@@ -425,6 +453,8 @@ public class VideoDetailsClass extends Service {
 	@Notes("Requires authentication.")
 	@ApiResponses(value={
 			@ApiResponse(code = 200, message = "Video details saved successfully."),
+			@ApiResponse(code = 401, message = "User is not authenticated."),
+			@ApiResponse(code = 409, message = "Video already exists."),
 			@ApiResponse(code = 500, message = "Internal error.")	
 	})
 	public HttpResponse addNewVideo( @ContentParam String data){
@@ -441,27 +471,56 @@ public class VideoDetailsClass extends Service {
 			} catch (ParseException e1) {
 				throw new IllegalArgumentException("data is not valid JSON!");
 			}
-			for (Object key: o.keySet()){
-				result+= key + " " + o.get(key);
+			if(getActiveAgent().getId() != getActiveNode().getAnonymous().getId()){
+				for (Object key: o.keySet()){
+					result+= key + " " + o.get(key);
+				}
+				conn = dbm.getConnection();
+				stmnt = conn.prepareStatement("select videoId from videodetails  WHERE videoid = ?");
+				stmnt.setString(1, (String) o.get("videoid"));
+				rs = stmnt.executeQuery(); 
+				if(!rs.isBeforeFirst())
+				{
+					rs.close();
+					stmnt.close();
+					conn.close();
+					conn = null;
+					conn = dbm.getConnection();
+					PreparedStatement preparedStatement = null;
+					preparedStatement = conn.prepareStatement("INSERT INTO videodetails(videoId, url, thumbnail, uploader, tool, community, time, description)"
+							+ "					 VALUES (?,?,?,?,?,?,?,?);");
+					preparedStatement.setString(1, (String) o.get("videoid"));
+					preparedStatement.setString(2, (String) o.get("url"));
+					preparedStatement.setString(3, (String) o.get("thumbnail"));
+					preparedStatement.setString(4, (String) o.get("uploader"));
+					preparedStatement.setString(5, (String) o.get("tool"));
+					preparedStatement.setString(6, (String) o.get("community"));
+					preparedStatement.setString(7, new Timestamp(date.getTime()).toString());
+					preparedStatement.setString(8, (String) o.get("description"));
+					int rows = preparedStatement.executeUpdate(); 
+					result = "Row(s) inserted. " + rows + " row(s) affected.";
+					
+					// return 
+					HttpResponse r = new HttpResponse(result);
+					r.setStatus(200);
+					return r;
+				}else{
+					result = "Video already exists.";
+					
+					// return 
+					HttpResponse r = new HttpResponse(result);
+					r.setStatus(409);
+					return r;
+					
+				}
+			}else{
+				result = "User in not authenticated";
+				
+				// return 
+				HttpResponse r = new HttpResponse(result);
+				r.setStatus(401);
+				return r;		
 			}
-			conn = dbm.getConnection();
-			stmnt = conn.prepareStatement("INSERT INTO videodetails(videoId, url, thumbnail, uploader, tool, community, time, description)"
-					+ "					 VALUES (?,?,?,?,?,?,?,?);");
-			stmnt.setString(1, (String) o.get("videoid"));
-			stmnt.setString(2, (String) o.get("url"));
-			stmnt.setString(3, (String) o.get("thumbnail"));
-			stmnt.setString(4, (String) o.get("uploader"));
-			stmnt.setString(5, (String) o.get("tool"));
-			stmnt.setString(6, (String) o.get("community"));
-			stmnt.setString(7, new Timestamp(date.getTime()).toString());
-			stmnt.setString(8, (String) o.get("description"));
-			int rows = stmnt.executeUpdate(); 
-			result = "Row inserted. " + rows + " row(s) affected";
-			
-			// return 
-			HttpResponse r = new HttpResponse(result);
-			r.setStatus(200);
-			return r;
 			
 		} catch (Exception e) {
 			// return HTTP Response on error
@@ -509,6 +568,8 @@ public class VideoDetailsClass extends Service {
 		}
 	}
 	
+	
+	
 	/**
 	 * Method to delete details for one video 
 	 * 
@@ -522,6 +583,8 @@ public class VideoDetailsClass extends Service {
 	@Notes("Requires authentication.")
 	@ApiResponses(value={
 			@ApiResponse(code = 200, message = "Video details deleted successfully."),
+			@ApiResponse(code = 401, message = "User is not authenticated."),
+			@ApiResponse(code = 404, message = "Video not found."),
 			@ApiResponse(code = 500, message = "Internal error.")	
 	})
 	public HttpResponse deleteVideo(@PathParam("videoId") String videoid ) {
@@ -531,16 +594,35 @@ public class VideoDetailsClass extends Service {
 		PreparedStatement stmnt = null;
 		ResultSet rs = null;
 		try {
-			conn = dbm.getConnection();
-			stmnt = conn.prepareStatement("DELETE FROM videodetails WHERE videoId = ?;");
-			stmnt.setString(1, videoid);
-			int rows = stmnt.executeUpdate(); 
-			result = "Row deleted. " + rows + " rows affected";
-			
-			// return 
-			HttpResponse r = new HttpResponse(result);
-			r.setStatus(200);
-			return r;
+			if(getActiveAgent().getId() != getActiveNode().getAnonymous().getId()){
+				conn = dbm.getConnection();
+				stmnt = conn.prepareStatement("DELETE FROM videodetails WHERE videoId = ?;");
+				stmnt.setString(1, videoid);
+				int rows = stmnt.executeUpdate(); 
+				if(rows>0){
+				result = "Row(s) deleted. " + rows + " row(s) affected";
+				
+				// return 
+				HttpResponse r = new HttpResponse(result);
+				r.setStatus(200);
+				return r;
+				}else{
+					result = "No video found";
+					
+					// return 
+					HttpResponse r = new HttpResponse(result);
+					r.setStatus(404);
+					return r;
+					}
+			}else{
+				result = "User in not authenticated";
+				
+				// return 
+				HttpResponse r = new HttpResponse(result);
+				r.setStatus(401);
+				return r;
+				
+			}
 			
 		} catch (Exception e) {
 			// return HTTP Response on error

@@ -139,6 +139,34 @@ public class ServiceTest {
 		
     }
 	
+	/**
+	 * Test method to insert details of one particular video
+	 */
+	
+	@Test
+	public void testInsertVideo()
+	{
+		MiniClient c = new MiniClient();
+		c.setAddressPort(HTTP_ADDRESS, HTTP_PORT);
+		
+		try
+		{
+			c.setLogin(Long.toString(testAgent.getId()), testPass);
+            ClientResponse result=c.sendRequest("POST", mainPath +"videos", "{ \"videoid\":\"10\", \"url\":\"url10\",  \"thumbnail\":\"thumbnail10\", \"uploader\":\"uploader10\", \"tool\":\"tool10\", \"community\":\"community10\", \"description\":\"description10\"}"); 
+            assertEquals(200, result.getHttpCode());
+            assertTrue(result.getResponse().trim().contains("inserted")); 
+			System.out.println("Result of 'testInsertVideo': " + result.getResponse().trim());
+			ClientResponse delete=c.sendRequest("DELETE", mainPath +"videos/10", ""); 
+            assertEquals(200, delete.getHttpCode());
+            assertTrue(delete.getResponse().trim().contains("deleted"));
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			fail ( "Exception: " + e );
+		}
+		
+    }
 	
 	/**
 	 * Test method to update details of one particular video
@@ -165,6 +193,37 @@ public class ServiceTest {
 		}
 		
     }
+	
+	/**
+	 * Test method to delete  one particular video
+	 */
+	
+	@Test
+	public void testDeleteVideo()
+	{
+		MiniClient c = new MiniClient();
+		c.setAddressPort(HTTP_ADDRESS, HTTP_PORT);
+		
+		try
+		{
+			c.setLogin(Long.toString(testAgent.getId()), testPass);
+			ClientResponse insert=c.sendRequest("POST", mainPath +"videos", "{ \"videoid\":\"11\", \"url\":\"url11\",  \"thumbnail\":\"thumbnail11\", \"uploader\":\"uploader11\", \"tool\":\"tool11\", \"community\":\"community11\", \"description\":\"description11\"}");
+			assertEquals(200, insert.getHttpCode());
+            assertTrue(insert.getResponse().trim().contains("inserted")); 
+			ClientResponse result=c.sendRequest("DELETE", mainPath +"videos/11", ""); 
+            assertEquals(200, result.getHttpCode());
+            assertTrue(result.getResponse().trim().contains("deleted")); 
+			System.out.println("Result of 'testDeleteVideo': " + result.getResponse().trim());
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			fail ( "Exception: " + e );
+		}
+		
+    }
+	
+	
 	
 	/**
 	 * Test method to get details many videos
