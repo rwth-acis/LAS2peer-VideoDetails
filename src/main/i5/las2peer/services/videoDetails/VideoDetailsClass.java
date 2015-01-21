@@ -69,6 +69,10 @@ public class VideoDetailsClass extends Service {
 	public VideoDetailsClass() {
 		// read and set properties values
 		setFieldValues();
+		
+		if(!epUrl.endsWith("/")){
+			epUrl += "/";
+		}
 		// instantiate a database manager to handle database connection pooling and credentials
 		dbm = new DatabaseManager(jdbcDriverClassName, jdbcLogin, jdbcPass, jdbcUrl, jdbcSchema);
 	}
