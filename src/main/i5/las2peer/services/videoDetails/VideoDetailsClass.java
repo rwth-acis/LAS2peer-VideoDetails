@@ -112,6 +112,7 @@ public class VideoDetailsClass extends Service {
 	 */
 	@GET
 	@Path("videos/{videoid}")
+	@Produces("application/json")
 	@ResourceListApi(description = "Return details for a selected video")
 	@Summary("return a JSON with video details stored for the given VideoID")
 	@Notes("query parameter selects the columns that need to be returned in the JSON.")
@@ -225,6 +226,7 @@ public class VideoDetailsClass extends Service {
 	 */
 	@GET
 	@Path("videos")
+	@Produces("application/json")
 	@ResourceListApi(description = "Return details for a selected video")
 	@Summary("return a JSON with details of videos stored")
 	@Notes("query parametes q matches video description. query parameter part selects the columns that need to be returned in the JSON.")
