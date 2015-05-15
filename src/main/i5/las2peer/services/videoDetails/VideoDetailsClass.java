@@ -475,7 +475,7 @@ public class VideoDetailsClass extends Service {
 			try{	
 				o = (JSONObject) JSONValue.parseWithException(data);
 			} catch (ParseException e1) {
-				throw new IllegalArgumentException("data is not valid JSON!");
+				throw new IllegalArgumentException("Data is not valid JSON!");
 			}
 			if(getActiveAgent().getId() != getActiveNode().getAnonymous().getId()){
 				for (Object key: o.keySet()){
