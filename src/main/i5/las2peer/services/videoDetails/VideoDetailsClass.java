@@ -495,8 +495,8 @@ public class VideoDetailsClass extends Service {
 					conn = null;
 					conn = dbm.getConnection();
 					PreparedStatement preparedStatement = null;
-					preparedStatement = conn.prepareStatement("INSERT INTO videodetails(videoId, url, thumbnail, uploader, tool, community, time, description)"
-							+ "					 VALUES (?,?,?,?,?,?,?,?);");
+					preparedStatement = conn.prepareStatement("INSERT INTO videodetails(videoId, url, thumbnail, uploader, tool, community, time, description, language)"
+							+ "					 VALUES (?,?,?,?,?,?,?,?,?);");
 					preparedStatement.setString(1, (String) o.get("videoid"));
 					preparedStatement.setString(2, (String) o.get("url"));
 					preparedStatement.setString(3, (String) o.get("thumbnail"));
@@ -505,6 +505,7 @@ public class VideoDetailsClass extends Service {
 					preparedStatement.setString(6, (String) o.get("community"));
 					preparedStatement.setString(7, new Timestamp(date.getTime()).toString());
 					preparedStatement.setString(8, (String) o.get("description"));
+					preparedStatement.setString(9, (String) o.get("language"));
 					int rows = preparedStatement.executeUpdate(); 
 					result = "Row(s) inserted. " + rows + " row(s) affected.";
 					
