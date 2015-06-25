@@ -112,6 +112,7 @@ public class VideoDetailsClass extends Service {
 	 */
 	@GET
 	@Path("videos/{videoid}")
+	@Produces("application/json")
 	@ResourceListApi(description = "Return details for a selected video")
 	@Summary("return a JSON with video details stored for the given VideoID")
 	@Notes("query parameter selects the columns that need to be returned in the JSON.")
@@ -225,7 +226,8 @@ public class VideoDetailsClass extends Service {
 	 */
 	@GET
 	@Path("videos")
-	@ResourceListApi(description = "Return details for a selected video")
+	@Produces("application/json")
+	@ResourceListApi(description = "stored in a MySQL database")
 	@Summary("return a JSON with details of videos stored")
 	@Notes("query parametes q matches video description. query parameter part selects the columns that need to be returned in the JSON.")
 	@ApiResponses(value={
@@ -493,8 +495,8 @@ public class VideoDetailsClass extends Service {
 					conn = null;
 					conn = dbm.getConnection();
 					PreparedStatement preparedStatement = null;
-					preparedStatement = conn.prepareStatement("INSERT INTO videodetails(videoId, url, thumbnail, uploader, tool, community, time, description)"
-							+ "					 VALUES (?,?,?,?,?,?,?,?);");
+					preparedStatement = conn.prepareStatement("INSERT INTO videodetails(videoId, url, thumbnail, uploader, tool, community, time, description, language)"
+							+ "					 VALUES (?,?,?,?,?,?,?,?,?);");
 					preparedStatement.setString(1, (String) o.get("videoid"));
 					preparedStatement.setString(2, (String) o.get("url"));
 					preparedStatement.setString(3, (String) o.get("thumbnail"));
@@ -503,6 +505,7 @@ public class VideoDetailsClass extends Service {
 					preparedStatement.setString(6, (String) o.get("community"));
 					preparedStatement.setString(7, new Timestamp(date.getTime()).toString());
 					preparedStatement.setString(8, (String) o.get("description"));
+					preparedStatement.setString(9, (String) o.get("language"));
 					int rows = preparedStatement.executeUpdate(); 
 					result = "Row(s) inserted. " + rows + " row(s) affected.";
 					

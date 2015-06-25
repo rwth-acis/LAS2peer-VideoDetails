@@ -152,7 +152,11 @@ public class ServiceTest {
 		try
 		{
 			c.setLogin(Long.toString(testAgent.getId()), testPass);
-            ClientResponse result=c.sendRequest("POST", mainPath +"videos", "{ \"videoid\":\"10\", \"url\":\"url10\",  \"thumbnail\":\"thumbnail10\", \"uploader\":\"uploader10\", \"tool\":\"tool10\", \"community\":\"community10\", \"description\":\"description10\"}"); 
+            ClientResponse result=c.sendRequest("POST", mainPath +"videos", "{ \"videoid\":\"10\", "
+            		+ "\"url\":\"url10\",  \"thumbnail\":\"thumbnail10\", "
+            		+ "\"uploader\":\"uploader10\", \"tool\":\"tool10\", "
+            		+ "\"community\":\"community10\", \"description\":\"description10\", "
+            		+ " \"language\":\"en\" }"); 
             assertEquals(200, result.getHttpCode());
             assertTrue(result.getResponse().trim().contains("inserted")); 
 			System.out.println("Result of 'testInsertVideo': " + result.getResponse().trim());
@@ -207,7 +211,11 @@ public class ServiceTest {
 		try
 		{
 			c.setLogin(Long.toString(testAgent.getId()), testPass);
-			ClientResponse insert=c.sendRequest("POST", mainPath +"videos", "{ \"videoid\":\"11\", \"url\":\"url11\",  \"thumbnail\":\"thumbnail11\", \"uploader\":\"uploader11\", \"tool\":\"tool11\", \"community\":\"community11\", \"description\":\"description11\"}");
+			ClientResponse insert=c.sendRequest("POST", mainPath +"videos", "{ "
+					+ "\"videoid\":\"11\", \"url\":\"url11\",  \"thumbnail\":\"thumbnail11\","
+					+ " \"uploader\":\"uploader11\", \"tool\":\"tool11\", "
+					+ "\"community\":\"community11\", \"description\":\"description11\", "
+            		+ " \"language\":\"en\" }");
 			assertEquals(200, insert.getHttpCode());
             assertTrue(insert.getResponse().trim().contains("inserted")); 
 			ClientResponse result=c.sendRequest("DELETE", mainPath +"videos/11", ""); 
